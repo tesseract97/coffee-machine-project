@@ -19,8 +19,13 @@ def start_coffee_machine():
         else:
             code, change = process_coins(order)
             if not code:
-                print("stopping point")
-    # TODO: deduct from resources
+                if 'money' not in menu.resources:
+                    menu.resources.update({'money': menu.MENU[order]['cost']})
+                    make_transaction(order, change)
+                else:
+                    menu.resources['money'] = menu.MENU[order]['cost'] + menu.resources['money']
+                    make_transaction(order, change)
+                print(f"Here is your {order}. Enjoy!")
     else:
         print("Sorry, that isn't on the menu. Please order again")
     start_coffee_machine()
@@ -54,6 +59,14 @@ def process_coins(order):
     except ValueError as e:
         print("Please enter your coin values again")
         process_coins(order)
+
+
+def make_transaction(order, change):
+    menu.resources['water'] = menu.resources['water'] - menu.MENU[order]['ingredients']['water']
+    menu.resources['coffee'] = menu.resources['coffee'] - menu.MENU[order]['ingredients']['coffee']
+    if 'milk' in menu.MENU[order]['ingredients']:
+        menu.resources['milk'] = menu.resources['milk'] - menu.MENU[order]['ingredients']['milk']
+    print(f'Here is ${change} in change')
 
 
 if __name__ == '__main__':
